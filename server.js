@@ -20,8 +20,8 @@ async function inicializarBanco() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT,
         idade INTEGER,
-        cor TEXT
-        status_saude TEXT
+        cor TEXT,
+        status_saude TEXT,
         adotado BOLEAN DEFAULT 0
         )
     `);
@@ -35,6 +35,25 @@ app.get("/", (req, res) => {
     mensagem:
       "Bem-vindo à CatRescue API! Sistema pronto para receber a Lua e outros felinos.",
   });
+});
+
+app.post("/gatos", async (req, res) => {
+  const { nome, idade, cor, status_saude } = req.body;
+
+  try {
+    const resultado = await db.run(
+      `INSERT INTO gatos (nome, idade, cor, status_saude) VALUES (?,?,?,?)`,
+      [nome, idade, cor, status_saude],
+    );
+
+    res.status(201).json({
+      mensagem: `${nome} cadastrado(a) com sucesso no abrigo!`,
+      id_gato: resultado.lastID,
+    });
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ erro: "Deu ruim ao salvar no banco de dados." });
+  }
 });
 
 inicializarBanco().then(() => {
