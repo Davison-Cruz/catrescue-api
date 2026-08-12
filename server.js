@@ -56,6 +56,17 @@ app.put("/gatos/:id", async (req, res) => {
 app.post("/gatos", async (req, res) => {
   const { nome, idade, cor, status_saude } = req.body;
 
+  if (!nome || !idade || !cor || !status_saude) {
+    return res.status(400).json({
+      erro: "Dados incompletos! Você precisa enviar nome, idade, cor e status_saude.",
+    });
+  }
+
+  if (typeof idade !== "number") {
+    return res.status(400).json({
+      erro: "A idade do felino precisa ser um número válido.",
+    });
+  }
   try {
     const resultado = await db.run(
       `INSERT INTO gatos (nome, idade, cor, status_saude) VALUES (?,?,?,?)`,
