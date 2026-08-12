@@ -16,13 +16,23 @@ async function inicializarBanco() {
   });
 
   await db.exec(`
+    CREATE TABLE IF NOT EXISTS adotantes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT,
+    telefone TEXT,
+    cpf TEXT)
+    `);
+
+  await db.exec(`
     Create TABLE IF NOT EXISTS gatos(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT,
         idade INTEGER,
         cor TEXT,
         status_saude TEXT,
-        adotado BOLEAN DEFAULT 0
+        adotado BOLEAN DEFAULT 0,
+        adotante_id INTEGER,
+        FOREIGN KEY (adotante_id) REFERENCES adotante(id)
         )
     `);
 
@@ -92,6 +102,28 @@ app.delete("/gatos/:id", async (req, res) => {
   } catch (erro) {
     console.error(erro);
     res.status(500).json({ erro: "Deu ruim ao tentar deletar o registro." });
+  }
+});
+
+app.post("/adotantes", async (req, res) => {
+  const { nome, telefone, cpf } = req.body;
+
+  if (!nome || !telefone) {
+    return res.status(400).json({ erro: "Nome e telefone são obrigatórios!" });
+  }
+  try {
+    const resultado = await db.run(
+      `INSERT INTO adotantes (nome, telefone, cpf) VALUES (?,?,?)`,
+      [nome, telefone, cpf],
+    );
+
+    res.status(201).json({
+      mensagem: `Adotante ${nome} cadastrado(a) com sucesso!`,
+      id_adotante: resultado.lastID,
+    });
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ erro: "Deu ruim ao salvar o adotante." });
   }
 });
 
