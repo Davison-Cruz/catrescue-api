@@ -38,6 +38,21 @@ app.get("/gatos", async (req, res) => {
   }
 });
 
+app.put("/gatos/:id", async (req, res) => {
+  const id_do_gato = req.params.id;
+  const { status_saude, adotado } = req.body;
+  try {
+    await db.run(
+      `UPDATE gatos SET status_saude = ?, adotado = ? WHERE id = ?`,
+      [status_saude, adotado, id_do_gato],
+    );
+    res.json({ mensagem: "Ficha do felino atualizada com sucesso!" });
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ erro: "Deu ruim ao atualizar o cadastro." });
+  }
+});
+
 app.post("/gatos", async (req, res) => {
   const { nome, idade, cor, status_saude } = req.body;
 
