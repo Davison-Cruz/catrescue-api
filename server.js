@@ -29,12 +29,13 @@ async function inicializarBanco() {
   console.log("📦 Banco de dados conectado e tabela criada!");
 }
 
-app.get("/", (req, res) => {
-  res.json({
-    status: "Sucesso!",
-    mensagem:
-      "Bem-vindo à CatRescue API! Sistema pronto para receber a Lua e outros felinos.",
-  });
+app.get("/gatos", async (req, res) => {
+  try {
+    const gatos = await db.all(`SELECT * FROM gatos`);
+    res.json(gatos);
+  } catch (erro) {
+    console.error(500).json({ erro: "Deu ruim ao buscar os dados no banco" });
+  }
 });
 
 app.post("/gatos", async (req, res) => {
