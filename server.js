@@ -72,6 +72,18 @@ app.post("/gatos", async (req, res) => {
   }
 });
 
+app.delete("/gatos/:id", async (req, res) => {
+  const id_do_gato = req.params.id;
+  try {
+    await db.run(`DELETE FROM gatos WHERE id = ?`, [id_do_gato]);
+
+    res.json({ mensagem: "Registro do felino removido com sucesso!" });
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ erro: "Deu ruim ao tentar deletar o registro." });
+  }
+});
+
 inicializarBanco().then(() => {
   app.listen(PORTA, () => {
     console.log(`🚀 Servidor rodando lindamente na porta ${PORTA}`);
