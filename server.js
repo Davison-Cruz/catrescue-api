@@ -137,7 +137,7 @@ app.put("/gatos/:id/adotar", async (req, res) => {
       .json({ erro: " Você precisa informar o ID do adotante!" });
   }
   try {
-    await db.run(`UPDATE gatos SET adotado = 1, adotante_id ? WHERE id = ?`, [
+    await db.run(`UPDATE gatos SET adotado = 1, adotante_id = ? WHERE id = ?`, [
       adotante_id,
       id_do_gato,
     ]);
@@ -146,6 +146,35 @@ app.put("/gatos/:id/adotar", async (req, res) => {
   } catch (erro) {
     console.error(erro);
     res.status(500).json({ erro: "Erro ao processar a adoção" });
+  }
+});
+
+app.get("/relatorios/adocoes", async (req, res) => {
+  try {
+    const relatorio = await db.all(`
+      SELECT 
+      gatos.nome AS nome_do_gato,
+      gatos.cor,
+      adotantes.nome AS nome_do_tutor,
+      adotantes.telefone AS contato
+      FROM gatos
+      JOIN adotantes ON gatos.adotante_id = adotantes.id
+      WHERE gatos.adotado = 1
+      `);
+
+    res.json(relatorio);
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ erro: "Deu ruim ao gerar o relatório." });
+  }
+});
+
+app.get("/adotantes", async (req, res) => {
+  try {
+    const adotantes = await db.all(`SELECT * FROM adotantes`);
+    res.json(adotantes);
+  } catch (erro) {
+    console.error(500).json({ erro: "Deu ruim ao buscar os dados no banco" });
   }
 });
 
