@@ -127,6 +127,28 @@ app.post("/adotantes", async (req, res) => {
   }
 });
 
+app.put("/gatos/:id/adotar", async (req, res) => {
+  const id_do_gato = req.params.id;
+  const { adotante_id } = req.body;
+
+  if (!adotante_id) {
+    return res
+      .status(400)
+      .json({ erro: " Você precisa informar o ID do adotante!" });
+  }
+  try {
+    await db.run(`UPDATE gatos SET adotado = 1, adotante_id ? WHERE id = ?`, [
+      adotante_id,
+      id_do_gato,
+    ]);
+
+    res.json({ mensagem: "Adoção realizada com sucesso!" });
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ erro: "Erro ao processar a adoção" });
+  }
+});
+
 inicializarBanco().then(() => {
   app.listen(PORTA, () => {
     console.log(`🚀 Servidor rodando lindamente na porta ${PORTA}`);
