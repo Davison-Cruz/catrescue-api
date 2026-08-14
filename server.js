@@ -1,11 +1,26 @@
 const express = require("express");
 const sqlite3 = require("sqlite3");
 const { open } = require("sqlite");
+const multer = require("multer");
+const path = require("path");
 
 const app = express();
 const PORTA = 3000;
 
 app.use(express.json());
+
+app.use("/uploads", express.static("uploads"));
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage: storage });
 
 let db;
 
@@ -30,6 +45,7 @@ async function inicializarBanco() {
         idade INTEGER,
         cor TEXT,
         status_saude TEXT,
+        imagem_url TEXT,
         adotado BOLEAN DEFAULT 0,
         adotante_id INTEGER,
         FOREIGN KEY (adotante_id) REFERENCES adotante(id)
@@ -175,6 +191,27 @@ app.get("/adotantes", async (req, res) => {
     res.json(adotantes);
   } catch (erro) {
     console.error(500).json({ erro: "Deu ruim ao buscar os dados no banco" });
+  }
+});
+
+app.post("/gatos/:id/foto", upload.single("foto"), async (req, res) => {
+  const id_do_gato = req.params.id;
+  if (!req.file) {
+    return res.status(400).json({ erro: "Nenhuma imagem foi enviada." });
+  }
+  const caminhoDaImagem = req.file.path;
+  try {
+    await db.run("UPDATE gatos SET imagem_url = ? WHERE id = ?", [
+      caminhoDaImagem,
+      id_do_gato,
+    ]);
+    res.json({
+      mensagem: "Foto adicionada com sucesso!",
+      url: caminhoDaImagem,
+    });
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ erro: "Erro ao salvar a URL da foto no banco." });
   }
 });
 
