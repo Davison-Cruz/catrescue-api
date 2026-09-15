@@ -154,6 +154,37 @@
         ></span>
       </div>
 
+      <!-- Botões de Filtro -->
+      <div style="margin-bottom: 20px; display: flex; gap: 10px">
+        <button
+          onclick="carregarGatos()"
+          style="
+            padding: 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+          "
+        >
+          🐾 Todos os Gatos
+        </button>
+        <button
+          onclick="carregarGatos(true)"
+          style="
+            padding: 10px;
+            background: #55efc4;
+            color: #2d3436;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+          "
+        >
+          🏠 Apenas Disponíveis
+        </button>
+      </div>
+
       <!-- Grade de Gatos (Será preenchida pelo JavaScript) -->
       <div class="grid" id="gatos-grid">
         <!-- Os cards entrarão aqui dinamicamente -->
@@ -162,14 +193,15 @@
 
     <script>
       // Função 1: Buscar os gatos do seu Back-end e desenhar na tela
-      async function carregarGatos() {
+      async function carregarGatos(apenasDisponiveis = false) {
         try {
-          // Aqui o Front-end bate na SUA rota GET
-          const resposta = await fetch("/gatos");
+          // Aqui o Front-end decide se usa a rota antiga ou a SUA NOVA ROTA!
+          const endpoint = apenasDisponiveis ? "/gatos/disponiveis" : "/gatos";
+          const resposta = await fetch(endpoint);
           const gatos = await resposta.json();
 
           const grid = document.getElementById("gatos-grid");
-          grid.innerHTML = ""; // Limpa a grade antes de desenhar
+          grid.innerHTML = ""; // Limpa a grade
 
           gatos.forEach((gato) => {
             const statusClass = gato.adotado ? "tag adotado" : "tag";

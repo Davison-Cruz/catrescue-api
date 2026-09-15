@@ -68,6 +68,20 @@ app.get("/gatos", async (req, res) => {
   }
 });
 
+app.get("/gatos/disponiveis", async (req, res) => {
+  try {
+    const disponiveis = await db.all(`SELECT * FROM gatos WHERE adotado = 0`);
+    res.json(disponiveis);
+  } catch (erro) {
+    console.error(erro);
+    res
+      .status(500)
+      .json({
+        erro: "Erro ao buscar os gatos disponíveis. Contacte o suporte.",
+      });
+  }
+});
+
 app.put("/gatos/:id", async (req, res) => {
   const id_do_gato = req.params.id;
   const { status_saude, adotado } = req.body;
