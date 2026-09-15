@@ -46,6 +46,7 @@ async function inicializarBanco() {
           nome TEXT,
           idade INTEGER,
           cor TEXT,
+          sexo TEXT,
           status_saude TEXT,
           imagem_url TEXT,
           adotado BOLEAN DEFAULT 0,
@@ -83,11 +84,17 @@ app.put("/gatos/:id", async (req, res) => {
 });
 
 app.post("/gatos", async (req, res) => {
-  const { nome, idade, cor, status_saude } = req.body;
+  const { nome, idade, cor, sexo, status_saude } = req.body;
 
-  if (!nome || !idade || !cor || !status_saude) {
+  if (sexo !== "Fêmea" && sexo !== "Macho") {
     return res.status(400).json({
-      erro: "Dados incompletos! Você precisa enviar nome, idade, cor e status_saude.",
+      erro: "O sexo do animal deve ser macho ou fêmea.",
+    });
+  }
+
+  if (!nome || !idade || !cor || !sexo || !status_saude) {
+    return res.status(400).json({
+      erro: "Dados incompletos! Você precisa enviar nome, idade, cor , sexo e status_saude.",
     });
   }
 
@@ -98,8 +105,8 @@ app.post("/gatos", async (req, res) => {
   }
   try {
     const resultado = await db.run(
-      `INSERT INTO gatos (nome, idade, cor, status_saude) VALUES (?,?,?,?)`,
-      [nome, idade, cor, status_saude],
+      `INSERT INTO gatos (nome, idade, cor, sexo, status_saude) VALUES (?,?,?,?,?)`,
+      [nome, idade, cor, sexo, status_saude],
     );
 
     res.status(201).json({

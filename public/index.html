@@ -2,68 +2,245 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>CatRescue - Upload de Foto</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CatRescue - Dashboard</title>
     <style>
+      :root {
+        --primary: #6c5ce7;
+        --background: #f4f6f9;
+        --card-bg: #ffffff;
+        --text-main: #2d3436;
+        --text-muted: #636e72;
+      }
+
       body {
-        font-family: Arial, sans-serif;
-        padding: 20px;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--background);
+        color: var(--text-main);
+        margin: 0;
+        padding: 0;
       }
-      .card {
+
+      header {
+        background-color: var(--primary);
+        color: white;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 30px auto;
+        padding: 0 20px;
+      }
+
+      .upload-section {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .upload-section input,
+      .upload-section button {
+        padding: 10px;
+        border-radius: 5px;
         border: 1px solid #ccc;
-        padding: 20px;
-        max-width: 300px;
-        border-radius: 8px;
       }
-      button {
-        margin-top: 10px;
-        padding: 8px;
+
+      .upload-section button {
+        background-color: var(--primary);
+        color: white;
+        border: none;
         cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+      }
+
+      .upload-section button:hover {
+        background-color: #5849c4;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+      }
+
+      .card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.2s;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+      }
+
+      .card-img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #adb5bd;
+      }
+
+      .card-content {
+        padding: 20px;
+      }
+      .card-title {
+        margin: 0 0 10px 0;
+        font-size: 1.4em;
+        color: var(--primary);
+      }
+      .tag {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: bold;
+        background: #ffeaa7;
+        color: #d63031;
+        margin-bottom: 15px;
+      }
+      .tag.adotado {
+        background: #55efc4;
+        color: #00b894;
+      }
+
+      .info {
+        margin: 5px 0;
+        font-size: 0.9em;
+        color: var(--text-muted);
+      }
+      .info strong {
+        color: var(--text-main);
       }
     </style>
   </head>
   <body>
-    <div class="card">
-      <h2>CatRescue API</h2>
-      <p>Envie a foto do felino (ID: 1):</p>
+    <header>
+      <h1>🐾 CatRescue Dashboard</h1>
+    </header>
 
-      <form id="form-foto">
+    <div class="container">
+      <!-- Área de Upload -->
+      <div class="upload-section">
+        <div>
+          <strong>Adicionar foto:</strong>
+        </div>
+        <input
+          type="number"
+          id="gato-id"
+          placeholder="ID do Gato"
+          style="width: 100px"
+          required
+        />
         <input type="file" id="arquivo-foto" accept="image/*" required />
-        <button type="submit">Salvar Foto</button>
-      </form>
+        <button onclick="enviarFoto()">Salvar Imagem</button>
+        <span
+          id="mensagem-upload"
+          style="margin-left: 15px; font-weight: bold"
+        ></span>
+      </div>
 
-      <p id="mensagem"></p>
+      <!-- Grade de Gatos (Será preenchida pelo JavaScript) -->
+      <div class="grid" id="gatos-grid">
+        <!-- Os cards entrarão aqui dinamicamente -->
+      </div>
     </div>
 
     <script>
-      document
-        .getElementById("form-foto")
-        .addEventListener("submit", async (evento) => {
-          evento.preventDefault(); // Evita que a tela pisque/recarregue
+      // Função 1: Buscar os gatos do seu Back-end e desenhar na tela
+      async function carregarGatos() {
+        try {
+          // Aqui o Front-end bate na SUA rota GET
+          const resposta = await fetch("/gatos");
+          const gatos = await resposta.json();
 
-          const arquivo = document.getElementById("arquivo-foto").files[0];
+          const grid = document.getElementById("gatos-grid");
+          grid.innerHTML = ""; // Limpa a grade antes de desenhar
 
-          // O FormData cria aquele exato pacote "multipart/form-data" que o Thunder Client cobrava
-          const pacote = new FormData();
-          pacote.append("foto", arquivo);
+          gatos.forEach((gato) => {
+            const statusClass = gato.adotado ? "tag adotado" : "tag";
+            const statusText = gato.adotado
+              ? "💖 Adotado"
+              : "🏠 Aguardando Lar";
 
-          try {
-            // Dispara a requisição POST para a sua API
-            const resposta = await fetch("/gatos/1/foto", {
-              method: "POST",
-              body: pacote,
-            });
+            // Se o gato tiver imagem, usa a URL, senão usa uma imagem cinza de placeholder
+            const imagem = gato.imagem_url
+              ? `<img src="/${gato.imagem_url}" class="card-img" alt="Foto de ${gato.nome}">`
+              : `<div class="card-img">Sem Foto</div>`;
 
-            const dados = await resposta.json();
-            document.getElementById("mensagem").innerText =
-              dados.mensagem || dados.erro;
-            document.getElementById("mensagem").style.color = resposta.ok
-              ? "green"
-              : "red";
-          } catch (erro) {
-            document.getElementById("mensagem").innerText =
-              "Erro ao conectar com o servidor.";
+            const iconeSexo = gato.sexo === "Fêmea" ? "♀️ Fêmea" : "♂️ Macho";
+            // Constrói o HTML do Card
+            const cardHTML = `
+    <div class="card">
+        ${imagem}
+        <div class="card-content">
+            <h2 class="card-title">${gato.nome} <span style="font-size: 0.6em; color: #ccc;">#${gato.id}</span></h2>
+            <span class="${statusClass}">${statusText}</span>
+            <span class="tag" style="background: #e0e0e0; color: #333;">${iconeSexo}</span>
+            <p class="info"><strong>Idade:</strong> ${gato.idade} anos</p>
+            <p class="info"><strong>Cor:</strong> ${gato.cor}</p>
+            <p class="info"><strong>Saúde:</strong> ${gato.status_saude}</p>
+        </div>
+    </div>
+`;
+            grid.innerHTML += cardHTML;
+          });
+        } catch (erro) {
+          console.error("Erro ao carregar dados do servidor:", erro);
+        }
+      }
+
+      // Função 2: Enviar a foto para o seu Back-end
+      async function enviarFoto() {
+        const id = document.getElementById("gato-id").value;
+        const arquivo = document.getElementById("arquivo-foto").files[0];
+        const msgLabel = document.getElementById("mensagem-upload");
+
+        if (!id || !arquivo) {
+          msgLabel.innerText = "Preencha o ID e escolha uma foto!";
+          msgLabel.style.color = "red";
+          return;
+        }
+
+        const pacote = new FormData();
+        pacote.append("foto", arquivo);
+
+        try {
+          const resposta = await fetch(`/gatos/${id}/foto`, {
+            method: "POST",
+            body: pacote,
+          });
+
+          if (resposta.ok) {
+            msgLabel.innerText = "✅ Foto salva!";
+            msgLabel.style.color = "green";
+            carregarGatos(); // Recarrega a tela para mostrar a foto nova imediatamente!
+          } else {
+            msgLabel.innerText = "❌ Erro ao salvar.";
+            msgLabel.style.color = "red";
           }
-        });
+        } catch (erro) {
+          msgLabel.innerText = "❌ Falha na conexão.";
+          msgLabel.style.color = "red";
+        }
+      }
+
+      // Quando a página abrir, carrega os gatos automaticamente
+      window.onload = carregarGatos;
     </script>
   </body>
 </html>
