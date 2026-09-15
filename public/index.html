@@ -3,67 +3,177 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CatRescue - Dashboard</title>
+    <title>CatRescue - Dashboard Pro</title>
     <style>
       :root {
         --primary: #6c5ce7;
+        --primary-hover: #5849c4;
+        --danger: #ff7675;
+        --success: #00b894;
         --background: #f4f6f9;
         --card-bg: #ffffff;
         --text-main: #2d3436;
         --text-muted: #636e72;
       }
-
       body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background-color: var(--background);
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        background: var(--background);
         color: var(--text-main);
         margin: 0;
-        padding: 0;
       }
-
       header {
-        background-color: var(--primary);
+        background: var(--primary);
         color: white;
-        padding: 20px;
+        padding: 25px;
         text-align: center;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       }
-
       .container {
         max-width: 1000px;
-        margin: 30px auto;
+        margin: 0 auto 30px auto;
         padding: 0 20px;
       }
 
-      .upload-section {
-        background: var(--card-bg);
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      .actions-top {
+        text-align: center;
+        margin-top: -20px;
         margin-bottom: 30px;
-        display: flex;
-        align-items: center;
-        gap: 15px;
+        position: relative;
+        z-index: 10;
       }
-
-      .upload-section input,
-      .upload-section button {
-        padding: 10px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-      }
-
-      .upload-section button {
-        background-color: var(--primary);
+      .btn-add {
+        background: var(--success);
         color: white;
         border: none;
-        cursor: pointer;
+        padding: 12px 25px;
+        border-radius: 30px;
         font-weight: bold;
-        transition: 0.3s;
+        cursor: pointer;
+        font-size: 1.1em;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s;
+      }
+      .btn-add:hover {
+        background: #00a884;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
       }
 
-      .upload-section button:hover {
-        background-color: #5849c4;
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(3px);
+      }
+      .modal-content {
+        background: var(--card-bg);
+        padding: 30px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        animation: deslizarCima 0.3s ease-out;
+      }
+      @keyframes deslizarCima {
+        from {
+          transform: translateY(-30px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      .btn-fechar {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: none;
+        border: none;
+        font-size: 1.5em;
+        cursor: pointer;
+        color: #aaa;
+        transition: 0.2s;
+      }
+      .btn-fechar:hover {
+        color: var(--danger);
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-top: 10px;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+      }
+      .form-group.full {
+        grid-column: span 2;
+      }
+      .form-group label {
+        font-size: 0.9em;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      .form-group input,
+      .form-group select {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-family: inherit;
+      }
+      .btn-salvar {
+        grid-column: span 2;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1em;
+        margin-top: 10px;
+        transition: 0.2s;
+      }
+      .btn-salvar:hover {
+        background: var(--primary-hover);
+      }
+
+      .filtros {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 30px;
+        justify-content: center;
+      }
+      .btn-filtro {
+        padding: 10px 20px;
+        border: 2px solid var(--primary);
+        background: transparent;
+        color: var(--primary);
+        border-radius: 30px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
+      .btn-filtro:hover {
+        background: #e8e6f9;
+        transform: translateY(-2px);
+      }
+      .btn-filtro.ativo {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 4px 10px rgba(108, 92, 231, 0.4);
+        border-color: var(--primary);
       }
 
       .grid {
@@ -71,7 +181,6 @@
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 25px;
       }
-
       .card {
         background: var(--card-bg);
         border-radius: 12px;
@@ -79,24 +188,22 @@
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         transition: transform 0.2s;
       }
-
       .card:hover {
         transform: translateY(-5px);
       }
-
       .card-img {
         width: 100%;
-        height: 200px;
+        height: 220px;
         object-fit: cover;
-        background-color: #e9ecef;
+        background: #e9ecef;
         display: flex;
         align-items: center;
         justify-content: center;
         color: #adb5bd;
       }
-
       .card-content {
         padding: 20px;
+        position: relative;
       }
       .card-title {
         margin: 0 0 10px 0;
@@ -111,168 +218,264 @@
         font-weight: bold;
         background: #ffeaa7;
         color: #d63031;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
       }
       .tag.adotado {
-        background: #55efc4;
-        color: #00b894;
+        background: var(--success);
+        color: white;
       }
-
       .info {
         margin: 5px 0;
         font-size: 0.9em;
         color: var(--text-muted);
       }
-      .info strong {
-        color: var(--text-main);
+
+      .btn-excluir {
+        width: 100%;
+        margin-top: 15px;
+        background: white;
+        color: var(--danger);
+        border: 1px solid var(--danger);
+        padding: 8px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.2s;
+      }
+      .btn-excluir:hover {
+        background: var(--danger);
+        color: white;
       }
     </style>
   </head>
   <body>
-    <header>
-      <h1>🐾 CatRescue Dashboard</h1>
-    </header>
+    <header><h1>🐾 CatRescue API</h1></header>
 
     <div class="container">
-      <!-- Área de Upload -->
-      <div class="upload-section">
-        <div>
-          <strong>Adicionar foto:</strong>
-        </div>
-        <input
-          type="number"
-          id="gato-id"
-          placeholder="ID do Gato"
-          style="width: 100px"
-          required
-        />
-        <input type="file" id="arquivo-foto" accept="image/*" required />
-        <button onclick="enviarFoto()">Salvar Imagem</button>
-        <span
-          id="mensagem-upload"
-          style="margin-left: 15px; font-weight: bold"
-        ></span>
+      <div class="actions-top">
+        <button class="btn-add" onclick="abrirModal()">
+          ➕ Adicionar Novo Felino
+        </button>
       </div>
 
-      <!-- Botões de Filtro -->
-      <div style="margin-bottom: 20px; display: flex; gap: 10px">
+      <div class="filtros">
         <button
-          onclick="carregarGatos()"
-          style="
-            padding: 10px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-          "
+          id="btn-filtro-todos"
+          class="btn-filtro ativo"
+          onclick="carregarGatos(false)"
         >
           🐾 Todos os Gatos
         </button>
         <button
+          id="btn-filtro-disp"
+          class="btn-filtro"
           onclick="carregarGatos(true)"
-          style="
-            padding: 10px;
-            background: #55efc4;
-            color: #2d3436;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-          "
         >
           🏠 Apenas Disponíveis
         </button>
       </div>
 
-      <!-- Grade de Gatos (Será preenchida pelo JavaScript) -->
-      <div class="grid" id="gatos-grid">
-        <!-- Os cards entrarão aqui dinamicamente -->
+      <div class="grid" id="gatos-grid"></div>
+    </div>
+
+    <div
+      id="modal-cadastro"
+      class="modal-overlay"
+      onclick="fecharModalFora(event)"
+    >
+      <div class="modal-content">
+        <button class="btn-fechar" onclick="fecharModal()">✖</button>
+        <h2 style="margin-top: 0; color: var(--primary)">Ficha de Resgate</h2>
+
+        <form id="form-gato" class="form-grid">
+          <div class="form-group">
+            <label>Nome do Felino</label>
+            <input type="text" id="cad-nome" required />
+          </div>
+          <div class="form-group">
+            <label>Idade (anos)</label>
+            <input type="number" id="cad-idade" required />
+          </div>
+          <div class="form-group">
+            <label>Cor / Pelagem</label>
+            <input type="text" id="cad-cor" required />
+          </div>
+          <div class="form-group">
+            <label>Sexo</label>
+            <select id="cad-sexo" required>
+              <option value="Fêmea">Fêmea</option>
+              <option value="Macho">Macho</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Status de Saúde (Avaliação Veterinária)</label>
+            <input type="text" id="cad-status" required />
+          </div>
+          <div class="form-group full">
+            <label>Foto do Resgate</label>
+            <input type="file" id="cad-foto" accept="image/*" required />
+          </div>
+
+          <button type="submit" class="btn-salvar" id="btn-submit">
+            Salvar Ficha no Sistema
+          </button>
+          <p
+            id="msg-cadastro"
+            style="
+              grid-column: span 2;
+              text-align: center;
+              margin: 10px 0 0 0;
+              font-weight: bold;
+            "
+          ></p>
+        </form>
       </div>
     </div>
 
     <script>
-      // Função 1: Buscar os gatos do seu Back-end e desenhar na tela
+      const modal = document.getElementById("modal-cadastro");
+
+      function abrirModal() {
+        modal.style.display = "flex";
+        document.getElementById("msg-cadastro").innerText = ""; // Limpa mensagens velhas
+      }
+
+      function fecharModal() {
+        modal.style.display = "none";
+        document.getElementById("form-gato").reset();
+      }
+
+      function fecharModalFora(evento) {
+        if (evento.target === modal) fecharModal();
+      }
+
+      function atualizarEstiloFiltros(apenasDisponiveis) {
+        const btnTodos = document.getElementById("btn-filtro-todos");
+        const btnDisp = document.getElementById("btn-filtro-disp");
+
+        btnTodos.classList.remove("ativo");
+        btnDisp.classList.remove("ativo");
+
+        if (apenasDisponiveis) {
+          btnDisp.classList.add("ativo");
+        } else {
+          btnTodos.classList.add("ativo");
+        }
+      }
+
+      document
+        .getElementById("form-gato")
+        .addEventListener("submit", async (evento) => {
+          evento.preventDefault();
+          const msgLabel = document.getElementById("msg-cadastro");
+          const btnSubmit = document.getElementById("btn-submit");
+
+          btnSubmit.innerText = "Processando...";
+          btnSubmit.disabled = true;
+
+          const dadosJSON = {
+            nome: document.getElementById("cad-nome").value,
+            idade: Number(document.getElementById("cad-idade").value),
+            cor: document.getElementById("cad-cor").value,
+            sexo: document.getElementById("cad-sexo").value,
+            status_saude: document.getElementById("cad-status").value,
+          };
+          const arquivo = document.getElementById("cad-foto").files[0];
+
+          try {
+            const resCriar = await fetch("/gatos", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(dadosJSON),
+            });
+            if (!resCriar.ok) throw new Error("Erro na API");
+            const dadosCriados = await resCriar.json();
+
+            const pacoteArquivo = new FormData();
+            pacoteArquivo.append("foto", arquivo);
+            const resFoto = await fetch(`/gatos/${dadosCriados.id_gato}/foto`, {
+              method: "POST",
+              body: pacoteArquivo,
+            });
+
+            if (resFoto.ok) {
+              msgLabel.innerText = "✅ Salvo com sucesso!";
+              msgLabel.style.color = "var(--success)";
+              carregarGatos();
+              setTimeout(fecharModal, 1500);
+            }
+          } catch (erro) {
+            msgLabel.innerText = "❌ Erro ao salvar cadastro.";
+            msgLabel.style.color = "var(--danger)";
+          } finally {
+            btnSubmit.innerText = "Salvar Ficha no Sistema";
+            btnSubmit.disabled = false;
+          }
+        });
+
+      async function excluirGato(id, nome) {
+        if (
+          confirm(
+            `Essa ação não pode ser desfeita. Excluir a ficha de ${nome}?`,
+          )
+        ) {
+          try {
+            await fetch(`/gatos/${id}`, { method: "DELETE" });
+            carregarGatos();
+          } catch (erro) {
+            alert("Erro ao conectar com o banco.");
+          }
+        }
+      }
+
+      // --- LÓGICA DE CARREGAMENTO (e Filtro) ---
       async function carregarGatos(apenasDisponiveis = false) {
+        atualizarEstiloFiltros(apenasDisponiveis);
+
         try {
-          // Aqui o Front-end decide se usa a rota antiga ou a SUA NOVA ROTA!
           const endpoint = apenasDisponiveis ? "/gatos/disponiveis" : "/gatos";
           const resposta = await fetch(endpoint);
           const gatos = await resposta.json();
-
           const grid = document.getElementById("gatos-grid");
-          grid.innerHTML = ""; // Limpa a grade
+          grid.innerHTML = "";
+
+          if (gatos.length === 0) {
+            grid.innerHTML =
+              '<p style="grid-column: 1/-1; text-align: center; color: #777;">Nenhum felino encontrado neste filtro.</p>';
+            return;
+          }
 
           gatos.forEach((gato) => {
             const statusClass = gato.adotado ? "tag adotado" : "tag";
             const statusText = gato.adotado
               ? "💖 Adotado"
               : "🏠 Aguardando Lar";
-
-            // Se o gato tiver imagem, usa a URL, senão usa uma imagem cinza de placeholder
+            const iconeSexo = gato.sexo === "Fêmea" ? "♀️ Fêmea" : "♂️ Macho";
             const imagem = gato.imagem_url
-              ? `<img src="/${gato.imagem_url}" class="card-img" alt="Foto de ${gato.nome}">`
+              ? `<img src="/${gato.imagem_url}" class="card-img" alt="Foto">`
               : `<div class="card-img">Sem Foto</div>`;
 
-            const iconeSexo = gato.sexo === "Fêmea" ? "♀️ Fêmea" : "♂️ Macho";
-            // Constrói o HTML do Card
-            const cardHTML = `
-    <div class="card">
-        ${imagem}
-        <div class="card-content">
-            <h2 class="card-title">${gato.nome} <span style="font-size: 0.6em; color: #ccc;">#${gato.id}</span></h2>
-            <span class="${statusClass}">${statusText}</span>
-            <span class="tag" style="background: #e0e0e0; color: #333;">${iconeSexo}</span>
-            <p class="info"><strong>Idade:</strong> ${gato.idade} anos</p>
-            <p class="info"><strong>Cor:</strong> ${gato.cor}</p>
-            <p class="info"><strong>Saúde:</strong> ${gato.status_saude}</p>
-        </div>
-    </div>
-`;
-            grid.innerHTML += cardHTML;
+            grid.innerHTML += `
+                        <div class="card">
+                            ${imagem}
+                            <div class="card-content">
+                                <h2 class="card-title">${gato.nome} <span style="font-size: 0.6em; color: #ccc;">#${gato.id}</span></h2>
+                                <span class="${statusClass}">${statusText}</span>
+                                <span class="tag" style="background: #e0e0e0; color: #333;">${iconeSexo}</span>
+                                <p class="info"><strong>Idade:</strong> ${gato.idade} anos</p>
+                                <p class="info"><strong>Cor:</strong> ${gato.cor}</p>
+                                <p class="info"><strong>Saúde:</strong> ${gato.status_saude}</p>
+                                <button class="btn-excluir" onclick="excluirGato(${gato.id}, '${gato.nome}')">🗑️ Excluir Ficha</button>
+                            </div>
+                        </div>
+                    `;
           });
         } catch (erro) {
-          console.error("Erro ao carregar dados do servidor:", erro);
+          console.error("Erro na API:", erro);
         }
       }
 
-      // Função 2: Enviar a foto para o seu Back-end
-      async function enviarFoto() {
-        const id = document.getElementById("gato-id").value;
-        const arquivo = document.getElementById("arquivo-foto").files[0];
-        const msgLabel = document.getElementById("mensagem-upload");
-
-        if (!id || !arquivo) {
-          msgLabel.innerText = "Preencha o ID e escolha uma foto!";
-          msgLabel.style.color = "red";
-          return;
-        }
-
-        const pacote = new FormData();
-        pacote.append("foto", arquivo);
-
-        try {
-          const resposta = await fetch(`/gatos/${id}/foto`, {
-            method: "POST",
-            body: pacote,
-          });
-
-          if (resposta.ok) {
-            msgLabel.innerText = "✅ Foto salva!";
-            msgLabel.style.color = "green";
-            carregarGatos(); // Recarrega a tela para mostrar a foto nova imediatamente!
-          } else {
-            msgLabel.innerText = "❌ Erro ao salvar.";
-            msgLabel.style.color = "red";
-          }
-        } catch (erro) {
-          msgLabel.innerText = "❌ Falha na conexão.";
-          msgLabel.style.color = "red";
-        }
-      }
-
-      // Quando a página abrir, carrega os gatos automaticamente
-      window.onload = carregarGatos;
+      window.onload = () => carregarGatos(false);
     </script>
   </body>
 </html>
