@@ -11,6 +11,8 @@ app.use(express.json());
 
 app.use("/uploads", express.static("uploads"));
 
+app.use(express.static(path.join(__dirname, "public")));
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads");
@@ -31,26 +33,26 @@ async function inicializarBanco() {
   });
 
   await db.exec(`
-    CREATE TABLE IF NOT EXISTS adotantes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT,
-    telefone TEXT,
-    cpf TEXT)
-    `);
+      CREATE TABLE IF NOT EXISTS adotantes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nome TEXT,
+      telefone TEXT,
+      cpf TEXT)
+      `);
 
   await db.exec(`
-    Create TABLE IF NOT EXISTS gatos(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT,
-        idade INTEGER,
-        cor TEXT,
-        status_saude TEXT,
-        imagem_url TEXT,
-        adotado BOLEAN DEFAULT 0,
-        adotante_id INTEGER,
-        FOREIGN KEY (adotante_id) REFERENCES adotante(id)
-        )
-    `);
+      Create TABLE IF NOT EXISTS gatos(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          nome TEXT,
+          idade INTEGER,
+          cor TEXT,
+          status_saude TEXT,
+          imagem_url TEXT,
+          adotado BOLEAN DEFAULT 0,
+          adotante_id INTEGER,
+          FOREIGN KEY (adotante_id) REFERENCES adotantes(id)
+          )
+      `);
 
   console.log("📦 Banco de dados conectado e tabela criada!");
 }
@@ -60,7 +62,8 @@ app.get("/gatos", async (req, res) => {
     const gatos = await db.all(`SELECT * FROM gatos`);
     res.json(gatos);
   } catch (erro) {
-    console.error(500).json({ erro: "Deu ruim ao buscar os dados no banco" });
+    console.error(erro);
+    res.status(500).json({ erro: "Deu ruim ao buscar os dados no banco" });
   }
 });
 
@@ -168,15 +171,15 @@ app.put("/gatos/:id/adotar", async (req, res) => {
 app.get("/relatorios/adocoes", async (req, res) => {
   try {
     const relatorio = await db.all(`
-      SELECT 
-      gatos.nome AS nome_do_gato,
-      gatos.cor,
-      adotantes.nome AS nome_do_tutor,
-      adotantes.telefone AS contato
-      FROM gatos
-      JOIN adotantes ON gatos.adotante_id = adotantes.id
-      WHERE gatos.adotado = 1
-      `);
+        SELECT 
+        gatos.nome AS nome_do_gato,
+        gatos.cor,
+        adotantes.nome AS nome_do_tutor,
+        adotantes.telefone AS contato
+        FROM gatos
+        JOIN adotantes ON gatos.adotante_id = adotantes.id
+        WHERE gatos.adotado = 1
+        `);
 
     res.json(relatorio);
   } catch (erro) {
@@ -190,7 +193,8 @@ app.get("/adotantes", async (req, res) => {
     const adotantes = await db.all(`SELECT * FROM adotantes`);
     res.json(adotantes);
   } catch (erro) {
-    console.error(500).json({ erro: "Deu ruim ao buscar os dados no banco" });
+    console.error(erro);
+    res.status(500).json({ erro: "Deu ruim ao buscar os dados no banco" });
   }
 });
 
